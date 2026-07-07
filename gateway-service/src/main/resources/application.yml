@@ -1,0 +1,96 @@
+server:
+  port: 8080
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: gateway-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yaml
+    gateway:
+      routes:
+        # 用户服务路由
+        - id: user-service-route
+          uri: lb://user-service
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - StripPrefix=1
+
+        # 座位服务路由
+        - id: seat-service-route
+          uri: lb://seat-service
+          predicates:
+            - Path=/api/seat/**
+          filters:
+            - StripPrefix=1
+
+        # 预约服务路由
+        - id: reservation-service-route
+          uri: lb://reservation-service
+          predicates:
+            - Path=/api/reservation/**
+          filters:
+            - StripPrefix=1
+
+        # 图书服务路由
+        - id: book-service-route
+          uri: lb://book-service
+          predicates:
+            - Path=/api/book/**
+          filters:
+            - StripPrefix=1
+
+        # 借阅服务路由
+        - id: borrowing-service-route
+          uri: lb://borrowing-service
+          predicates:
+            - Path=/api/borrow/**
+          filters:
+            - StripPrefix=1
+
+        # 通知服务路由
+        - id: notification-service-route
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/notification/**
+          filters:
+            - StripPrefix=1
+
+        # 统计服务路由（复用reservation-service中的统计）
+        - id: statistics-service-route
+          uri: lb://reservation-service
+          predicates:
+            - Path=/api/statistics/**
+          filters:
+            - StripPrefix=1
+
+        # 导出服务路由
+        - id: export-service-route
+          uri: lb://reservation-service
+          predicates:
+            - Path=/api/export/**
+          filters:
+            - StripPrefix=1
+
+        # Knife4j API 文档路由
+        - id: knife4j-doc-route
+          uri: lb://user-service
+          predicates:
+            - Path=/doc.html, /swagger-ui/**, /v2/api-docs/**, /v3/api-docs/**, /swagger-resources/**, /webjars/**
+
+    sentinel:
+      transport:
+        dashboard: localhost:8858
+        port: 8719
+
+logging:
+  level:
+    org.springframework.cloud.gateway: debug
+    com.library: debug

@@ -1,0 +1,62 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: reservation-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/library_reservation?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: 123456
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+  mail:
+    host: localhost
+    port: 25
+    username: dummy
+    password: dummy
+    properties:
+      mail.smtp.auth: false
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yaml
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+
+# OpenFeign
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 5000
+        read-timeout: 5000
+        logger-level: full
+
+# Seata
+seata:
+  enabled: false
+
+# RocketMQ
+rocketmq:
+  name-server: 127.0.0.1:9876
+  producer:
+    group: reservation-producer-group
+    send-message-timeout: 3000
+
+logging:
+  level:
+    com.library: debug
+    com.library.reservation.feign: debug

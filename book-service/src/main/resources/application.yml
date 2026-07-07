@@ -1,0 +1,48 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: book-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/library_book?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+    username: root
+    password: 123456
+  redis:
+    host: localhost
+    port: 6379
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+rocketmq:
+  name-server: localhost:9876
+  producer:
+    group: book-producer-group
+
+seata:
+  tx-service-group: library_tx_group
+  service:
+    vgroup-mapping:
+      library_tx_group: default
+    grouplist:
+      default: localhost:8091
+
+# ==================== OCR 配置 ====================
+ocr:
+  baidu:
+    # 百度OCR API 密钥（留空则使用模拟模式）
+    api-key: ""
+    secret-key: ""
