@@ -66,7 +66,7 @@ const loadData = async () => {
     if (filterDate.value) params.date = filterDate.value
     if (filterStatus.value !== null && filterStatus.value !== '') params.status = filterStatus.value
     const res = await listAllReservations(params)
-    reservations.value = res.data || []
+    reservations.value = res.data?.records || []
   } catch (e) { /* ignore */ }
 }
 

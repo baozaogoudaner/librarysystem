@@ -52,7 +52,13 @@ public class StatisticsController {
     @GetMapping("/room-occupancy")
     public Result<List<Map<String, Object>>> getRoomOccupancy() {
         String today = LocalDate.now().toString();
-        String sql = "SELECT s.room_name AS roomName, s.capacity, IFNULL(r.in_use, 0) AS inUseCount FROM (SELECT room_name, COUNT(*) AS capacity FROM t_seat GROUP BY room_name) s LEFT JOIN (SELECT room_name, COUNT(*) AS in_use FROM t_reservation WHERE date = ? AND status = 1 GROUP BY room_name) r ON s.room_name = r.room_name";
+        String sql = "SELECT r.name AS roomName, r.capacity, IFNULL(sub.in_use, 0) AS inUseCount "
+                   + "FROM library_seat.t_room r "
+                   + "LEFT JOIN (SELECT t.room_id, COUNT(*) AS in_use "
+                   + "FROM library_reservation.t_reservation res "
+                   + "JOIN library_seat.t_seat t ON res.seat_id = t.id "
+                   + "WHERE res.date = ? AND res.status = 1 "
+                   + "GROUP BY t.room_id) sub ON r.id = sub.room_id";
         List<Map<String, Object>> data = jdbcTemplate.queryForList(sql, today);
         return Result.success(data);
     }

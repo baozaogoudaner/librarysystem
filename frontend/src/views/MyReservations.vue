@@ -46,7 +46,7 @@ const statusType = (s) => ({ 0: 'warning', 1: 'success', 2: 'info', 3: '', 4: 'd
 const loadData = async () => {
   try {
     const res = await getMyReservations()
-    reservations.value = res.data || []
+    reservations.value = res.data?.records || []
   } catch (e) { /* ignore */ }
 }
 

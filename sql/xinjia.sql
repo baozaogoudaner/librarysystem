@@ -1,0 +1,6 @@
+ALTER TABLE t_user 
+  ADD COLUMN credit_score INT DEFAULT 100 COMMENT '信用分',
+  ADD COLUMN avatar_url VARCHAR(255) DEFAULT NULL COMMENT '头像URL',
+  ADD COLUMN reader_type TINYINT DEFAULT 0 COMMENT '读者类型',
+  ADD COLUMN max_borrow_count INT DEFAULT 5 COMMENT '最大借阅数量',
+  ADD COLUMN total_borrows INT DEFAULT 0 COMMENT '累计借阅次数';

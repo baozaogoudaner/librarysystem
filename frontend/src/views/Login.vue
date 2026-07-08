@@ -2,9 +2,11 @@
   <div class="login-container">
     <div class="login-card">
       <div class="login-header">
-        <el-icon :size="40" color="#409eff"><Reading /></el-icon>
-        <h1>图书馆座位预约系统</h1>
-        <p>Library Seat Reservation System</p>
+        <div class="login-logo">
+          <el-icon :size="42" color="#f5a623"><Reading /></el-icon>
+        </div>
+        <h1>智慧图书馆</h1>
+        <p>Library Smart Service System</p>
       </div>
 
       <el-tabs v-model="activeTab" class="login-tabs">
@@ -17,14 +19,14 @@
               <el-input v-model="loginForm.password" placeholder="请输入密码" prefix-icon="Lock" type="password" show-password size="large" />
             </el-form-item>
             <el-form-item prop="captchaCode">
-              <div style="display: flex; gap: 10px;">
-                <el-input v-model="loginForm.captchaCode" placeholder="验证码" prefix-icon="Key" size="large" style="flex: 1" />
+              <div class="captcha-row">
+                <el-input v-model="loginForm.captchaCode" placeholder="验证码" prefix-icon="Key" size="large" class="captcha-input" />
                 <img :src="loginCaptchaImg" @click="refreshCaptcha('login')"
-                     style="height: 40px; width: 120px; cursor: pointer; border: 1px solid #dcdfe6; border-radius: 4px;" title="点击刷新验证码" />
+                     class="captcha-img" title="点击刷新验证码" />
               </div>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="handleLogin" :loading="loading" size="large" style="width: 100%">
+              <el-button type="primary" @click="handleLogin" :loading="loading" size="large" class="login-btn">
                 登 录
               </el-button>
             </el-form-item>
@@ -49,14 +51,14 @@
               <el-input v-model="registerForm.email" placeholder="请输入邮箱" prefix-icon="Message" size="large" />
             </el-form-item>
             <el-form-item prop="captchaCode">
-              <div style="display: flex; gap: 10px;">
-                <el-input v-model="registerForm.captchaCode" placeholder="验证码" prefix-icon="Key" size="large" style="flex: 1" />
+              <div class="captcha-row">
+                <el-input v-model="registerForm.captchaCode" placeholder="验证码" prefix-icon="Key" size="large" class="captcha-input" />
                 <img :src="registerCaptchaImg" @click="refreshCaptcha('register')"
-                     style="height: 40px; width: 120px; cursor: pointer; border: 1px solid #dcdfe6; border-radius: 4px;" title="点击刷新验证码" />
+                     class="captcha-img" title="点击刷新验证码" />
               </div>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="handleRegister" :loading="loading" size="large" style="width: 100%">
+              <el-button type="primary" @click="handleRegister" :loading="loading" size="large" class="login-btn">
                 注 册
               </el-button>
             </el-form-item>
@@ -183,34 +185,100 @@ const handleRegister = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: url('/3library.png') no-repeat center center fixed;
+  background-size: cover;
+  position: relative;
 }
 
 .login-card {
   width: 420px;
-  background: white;
-  border-radius: 12px;
+  background: #fff;
+  border-radius: 16px;
   padding: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  position: relative;
+  z-index: 1;
+  animation: card-enter 0.6s ease-out;
+}
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
+}
+
+.login-logo {
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(135deg, #f5a623 0%, #e09515 100%);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  box-shadow: 0 8px 24px rgba(245, 166, 35, 0.3);
 }
 
 .login-header h1 {
-  font-size: 22px;
-  color: #303133;
-  margin: 12px 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
 }
 
 .login-header p {
   font-size: 13px;
-  color: #909399;
+  color: var(--text-secondary);
+  letter-spacing: 1px;
 }
 
 .login-tabs :deep(.el-tabs__header) {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+}
+
+.login-tabs :deep(.el-tabs__item) {
+  font-size: 15px;
+  font-weight: 500;
+  height: 40px;
+  line-height: 40px;
+}
+
+.login-tabs :deep(.el-tabs__active-bar) {
+  background-color: var(--gold);
+}
+
+.captcha-row {
+  display: flex;
+  gap: 10px;
+}
+
+.captcha-input {
+  flex: 1;
+}
+
+.captcha-img {
+  height: 40px;
+  width: 120px;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  transition: border-color 0.2s;
+}
+
+.captcha-img:hover {
+  border-color: var(--primary);
+}
+
+.login-btn {
+  width: 100%;
+  height: 44px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  border-radius: 10px;
 }
 </style>

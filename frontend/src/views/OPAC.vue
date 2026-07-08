@@ -13,45 +13,25 @@
           <el-icon><Search /></el-icon> 检索
         </el-button>
       </div>
-      <div style="margin-top:12px">
-        <el-button size="small" @click="ocrClick" :loading="ocrLoading">
-          <el-icon><Camera /></el-icon> 扫码借书/还书
+      <div style="margin-top:12px;text-align:center;display:flex;gap:12px;justify-content:center">
+        <el-button size="default" type="primary" round @click="ocrClick('borrow')" :loading="ocrLoading" class="ocr-btn">
+          <el-icon style="font-size:16px"><Camera /></el-icon> 扫码借书
         </el-button>
-        <input type="file" ref="ocrFileInput" accept="image/*" style="display:none" @change="onOcrFile" />
+        <el-button size="default" round @click="ocrClick('return')" :loading="ocrLoading" class="ocr-btn">
+          <el-icon style="font-size:16px"><Camera /></el-icon> 扫码还书
+        </el-button>
+        <input type="file" ref="ocrFileInput" accept="image/*" capture="environment" style="display:none" @change="onOcrBorrow" />
+        <input type="file" ref="ocrReturnInput" accept="image/*" capture="environment" style="display:none" @change="onOcrReturn" />
       </div>
     </div>
 
-    <!-- Hot Books -->
-    <div class="section" v-if="hotBooks.length > 0 && !searched">
-      <h2><el-icon><TrendCharts /></el-icon> 热门图书</h2>
-      <el-row :gutter="20">
-        <el-col :span="6" v-for="book in hotBooks" :key="book.id">
-          <el-card shadow="hover" class="book-card" @click="viewBook(book)">
-            <div class="book-cover">
-              <img :src="book.coverUrl || 'https://via.placeholder.com/200x280?text=No+Cover'" :alt="book.title" />
-            </div>
-            <div class="book-info">
-              <h4>{{ book.title }}</h4>
-              <p class="author">{{ book.author }}</p>
-              <p class="meta">
-                <el-tag :type="book.availableStock > 0 ? 'success' : 'danger'" size="small">
-                  {{ book.availableStock > 0 ? `可借(${book.availableStock})` : '已借完' }}
-                </el-tag>
-                <el-tag v-if="book.hasEbook" type="warning" size="small" style="margin-left:4px">电子版</el-tag>
-              </p>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
-    </div>
-
     <!-- AI Recommend -->
-    <div class="section" v-if="!searched">
-      <h2><el-icon><Reading /></el-icon> AI 智能推荐</h2>
+    <el-card shadow="hover" class="section" v-if="!searched">
+      <template #header><span style="font-weight:600"><el-icon><Reading /></el-icon> 智能推荐</span></template>
       <div v-if="!aiLoaded && !aiLoading" style="margin-bottom:16px">
-        <p style="color:#909399;margin-bottom:12px">基于你的借阅记录，由 DeepSeek AI 智能推荐</p>
+        <p style="color:#909399;margin-bottom:12px">基于你的借阅记录，由本地算法推荐</p>
         <el-button type="primary" @click="loadAiRecommend" :loading="aiLoading" icon="MagicStick">
-          {{ aiLoading ? 'AI 思考中...' : '生成我的推荐' }}
+          {{ aiLoading ? '思考中...' : '生成我的推荐' }}
         </el-button>
         <el-tag v-if="!hasAiKey" type="warning" size="small" style="margin-left:8px">需配置 API Key</el-tag>
       </div>
@@ -64,11 +44,12 @@
         <el-col :span="8" v-for="item in aiResults" :key="item.bookId" style="margin-bottom:20px">
           <el-card shadow="hover" class="book-card" @click="viewBook(item.book)">
             <div class="book-cover">
-              <img :src="item.book?.coverUrl || 'https://via.placeholder.com/200x280?text=No+Cover'" :alt="item.book?.title" />
+              <img :src="item.book?.coverUrl || '/covers/' + item.bookId + '.svg'" :alt="item.book?.title" />
             </div>
             <div class="book-info">
               <h4>{{ item.book?.title }}</h4>
               <p class="author">{{ item.book?.author }}</p>
+              <p class="cat-tag">{{ item.book?.category }}</p>
               <p style="font-size:12px;color:#666;margin-top:8px;line-height:1.6">{{ item.reason }}</p>
               <p class="meta" style="margin-top:8px">
                 <el-tag :type="item.book?.availableStock > 0 ? 'success' : 'danger'" size="small">
@@ -79,43 +60,62 @@
           </el-card>
         </el-col>
       </el-row>
-    </div>
+    </el-card>
+
+    <!-- Hot Books -->
+    <el-card shadow="hover" class="section" v-if="hotBooks.length > 0 && !searched">
+      <template #header><span style="font-weight:600"><el-icon><TrendCharts /></el-icon> 热门图书</span></template>
+      <el-row :gutter="20">
+        <el-col :span="6" v-for="book in hotBooks" :key="book.id">
+          <el-card shadow="hover" class="book-card" @click="viewBook(book)">
+            <div class="book-cover">
+              <img :src="book.coverUrl || '/covers/' + book.id + '.svg'" :alt="book.title" />
+            </div>
+            <div class="book-info">
+              <h4>{{ book.title }}</h4>
+              <p class="author">{{ book.author }}</p>
+              <p class="cat-tag">{{ book.category }}</p>
+              <p class="meta">
+                <el-tag :type="book.availableStock > 0 ? 'success' : 'danger'" size="small">
+                  {{ book.availableStock > 0 ? `可借(${book.availableStock})` : '已借完' }}
+                </el-tag>
+                <el-tag v-if="book.hasEbook" type="warning" size="small" style="margin-left:4px">电子版</el-tag>
+              </p>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+    </el-card>
 
     <!-- Search Results -->
     <div class="section" v-if="searched">
-      <h2>搜索结果 <span class="count">({{ books.length }} 条)</span></h2>
-      <el-table :data="books" stripe style="width: 100%" @row-click="viewBook" v-loading="loading">
-        <el-table-column prop="title" label="书名" min-width="200" />
-        <el-table-column prop="author" label="作者" width="150" />
-        <el-table-column prop="publisher" label="出版社" width="150" />
-        <el-table-column prop="isbn" label="ISBN" width="140" />
-        <el-table-column label="馆藏位置" width="120">
-          <template #default="{ row }">
-            <span>{{ row.location || '主馆' }}</span>
-            <br/>
-            <small class="call-number">{{ row.callNumber || '-' }}</small>
-          </template>
-        </el-table-column>
-        <el-table-column label="状态" width="140">
-          <template #default="{ row }">
-            <el-tag :type="row.availableStock > 0 ? 'success' : 'danger'">
-              {{ row.availableStock > 0 ? `在馆(${row.availableStock}/${row.totalStock})` : '已借完' }}
-            </el-tag>
-            <el-tag v-if="row.hasEbook" type="warning" size="small" style="margin-top:4px;display:block;text-align:center">
-              <el-icon><Reading /></el-icon> 电子版
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="180" fixed="right">
-          <template #default="{ row }">
-            <el-button size="small" type="primary" @click.stop="viewBook(row)">详情</el-button>
-            <el-button v-if="row.availableStock > 0" size="small" type="success" @click.stop="borrowBook(row)">
-              借书
-            </el-button>
-            <el-button v-else size="small" @click.stop="reserveBookAction(row)">预约</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <h2 style="margin-bottom:16px">搜索结果 <span class="count">({{ books.length }} 条)</span></h2>
+      <el-row :gutter="20" v-loading="loading">
+        <el-col :span="8" v-for="book in books" :key="book.id" style="margin-bottom:20px">
+          <el-card shadow="hover" class="book-card" @click="viewBook(book)">
+            <div class="book-cover">
+              <img :src="book.coverUrl || 'https://via.placeholder.com/200x280?text=No+Cover'" :alt="book.title" />
+            </div>
+            <div class="book-info">
+              <h4>{{ book.title }}</h4>
+              <p class="author">{{ book.author }}</p>
+              <p class="cat-tag">{{ book.category }}</p>
+              <p class="meta" style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap">
+                <el-tag :type="book.availableStock > 0 ? 'success' : 'danger'" size="small">
+                  {{ book.availableStock > 0 ? `可借(${book.availableStock}/${book.totalStock})` : '已借完' }}
+                </el-tag>
+                <el-tag v-if="book.hasEbook" type="warning" size="small">电子版</el-tag>
+                <el-tag type="info" size="small">{{ book.location || '主馆' }}</el-tag>
+              </p>
+              <div style="margin-top:10px;display:flex;gap:8px">
+                <el-button size="small" type="primary" @click.stop="viewBook(book)">详情</el-button>
+                <el-button v-if="book.availableStock > 0" size="small" type="success" @click.stop="borrowBook(book)">借书</el-button>
+                <el-button v-else size="small" @click.stop="reserveBookAction(book)">预约</el-button>
+              </div>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
     </div>
 
     <!-- Book Detail Dialog -->
@@ -153,6 +153,17 @@
         <el-button type="primary" @click="confirmBorrow" :loading="borrowing">确认借阅</el-button>
       </template>
     </el-dialog>
+
+    <!-- Photo Review -->
+    <el-dialog v-model="showPhotoReview" title="拍照确认" width="450px" :close-on-click-modal="false">
+      <div style="text-align:center">
+        <img :src="capturedPhoto" style="max-width:100%;max-height:350px;border-radius:8px;" />
+      </div>
+      <template #footer>
+        <el-button @click="retakeScan" icon="Camera">重拍</el-button>
+        <el-button type="primary" @click="confirmScan" :loading="ocrLoading" icon="Check">识别</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -160,9 +171,9 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Search, TrendCharts, Reading, MagicStick, Loading, Camera } from '@element-plus/icons-vue'
+import { Search, TrendCharts, Reading, MagicStick, Loading, Camera, Check } from '@element-plus/icons-vue'
 import { searchBooks, getHotBooks, getBook, listBooks } from '../api/book'
-import { borrowBook as apiBorrow, reserveBook as apiReserve } from '../api/borrowing'
+import { borrowBook as apiBorrow, returnBook as apiReturn, getMyBorrows, reserveBook as apiReserve } from '../api/borrowing'
 import { aiRecommend, ocrImage, hasApiKey } from '../utils/deepseek'
 
 const hasAiKey = hasApiKey()
@@ -184,32 +195,94 @@ const aiLoading = ref(false)
 const aiLoaded = ref(false)
 const aiError = ref('')
 
-// OCR 扫码借还书
+// OCR 扫码借书
 const ocrFileInput = ref(null)
+const ocrReturnInput = ref(null)
 const ocrLoading = ref(false)
-const ocrMode = ref('') // '' | 'borrow' | 'return'
+const ocrMode = ref('')
+const capturedPhoto = ref('')
+const showPhotoReview = ref(false)
 
-function ocrClick() {
+function ocrClick(mode) {
   const token = localStorage.getItem('token')
   if (!token) { ElMessage.warning('请先登录'); return }
-  ocrFileInput.value?.click()
+  ocrMode.value = mode
+  // 拍照
+  ocrLoading.value = true
+  captureFromCamera().then(b64 => {
+    ocrLoading.value = false
+    capturedPhoto.value = b64
+    showPhotoReview.value = true
+  }).catch(() => {
+    ocrLoading.value = false
+    // 降级：文件选择器
+    if (mode === 'borrow') ocrFileInput.value?.click()
+    else ocrReturnInput.value?.click()
+  })
 }
 
-async function onOcrFile(e) {
-  const file = e.target.files?.[0]
-  if (!file) return
+function confirmScan() {
+  showPhotoReview.value = false
+  const b64 = capturedPhoto.value
+  if (ocrMode.value === 'borrow') processBorrowImage(b64)
+  else processReturnImage(b64)
+}
+
+function retakeScan() {
+  showPhotoReview.value = false
+  capturedPhoto.value = ''
+  // 重拍
+  ocrLoading.value = true
+  captureFromCamera().then(b64 => {
+    ocrLoading.value = false
+    capturedPhoto.value = b64
+    showPhotoReview.value = true
+  }).catch(() => {
+    ocrLoading.value = false
+    ElMessage.error('拍照失败')
+  })
+}
+
+// 摄像头拍照（隐藏 video，无预览）
+function captureFromCamera() {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video')
+    video.setAttribute('playsinline', '')
+    video.style.cssText = 'position:fixed;top:-9999px;left:-9999px'
+    document.body.appendChild(video)
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(stream => {
+        video.srcObject = stream
+        video.onloadedmetadata = () => {
+          video.play()
+          setTimeout(() => {
+            const canvas = document.createElement('canvas')
+            canvas.width = video.videoWidth || 1280
+            canvas.height = video.videoHeight || 720
+            canvas.getContext('2d').drawImage(video, 0, 0)
+            const b64 = canvas.toDataURL('image/jpeg', 0.8)
+            stream.getTracks().forEach(t => t.stop())
+            document.body.removeChild(video)
+            resolve(b64)
+          }, 1000)
+        }
+      })
+      .catch(err => {
+        document.body.removeChild(video)
+        reject(err)
+      })
+  })
+}
+
+// 通用：图片 base64 → 识别 ISBN → 借书
+async function processBorrowImage(b64) {
   ocrLoading.value = true
   try {
-    // 图片转 base64
-    const b64 = await fileToBase64(file)
-    // 识别条码/ISBN
     const result = await ocrImage(b64.split(',')[1], 'barcode')
     const isbn = result.barcode || result.isbn
     if (!isbn) { ElMessage.warning('未识别到条码'); return }
 
-    // 按 ISBN 搜索图书
     const cleanIsbn = isbn.replace(/[\s-]/g, '')
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
     const searchRes = await searchBooks(cleanIsbn)
     const books = searchRes.data || []
     if (!books.length) { ElMessage.warning('未找到对应图书'); return }
@@ -218,21 +291,62 @@ async function onOcrFile(e) {
     currentBook.value = book
 
     if (book.availableStock > 0) {
-      // 可借 → 直接借书
       await apiBorrow({ bookId: book.id, isbn: book.isbn, bookTitle: book.title })
       ElMessage.success(`借书成功：《${book.title}》`)
-      doSearch()
+      if (keyword.value.trim()) doSearch()
     } else {
       ElMessage.info('该书已被借完，已为您打开预约页面')
-      // 打开详情对话框让用户预约
       detailVisible.value = true
     }
   } catch (err) {
     ElMessage.error(err.response?.data?.message || err.message || '操作失败')
   } finally {
     ocrLoading.value = false
-    e.target.value = ''
   }
+}
+
+// 通用：图片 base64 → 识别 ISBN → 还书
+async function processReturnImage(b64) {
+  ocrLoading.value = true
+  try {
+    const result = await ocrImage(b64.split(',')[1], 'barcode')
+    const isbn = result.barcode || result.isbn
+    if (!isbn) { ElMessage.warning('未识别到条码'); return }
+
+    const cleanIsbn = isbn.replace(/[\s-]/g, '')
+    const searchRes = await searchBooks(cleanIsbn)
+    const books = searchRes.data || []
+    if (!books.length) { ElMessage.warning('未找到对应图书'); return }
+
+    const book = books[0]
+    const borrowRes = await getMyBorrows({ status: 0, pageSize: 50 })
+    const activeBorrows = borrowRes.data?.records || []
+    const match = activeBorrows.find(b => b.bookId === book.id)
+    if (!match) { ElMessage.warning('您当前没有借阅此书'); return }
+
+    await apiReturn(match.id)
+    ElMessage.success(`还书成功：《${book.title}》`)
+  } catch (err) {
+    ElMessage.error(err.response?.data?.message || err.message || '还书失败')
+  } finally {
+    ocrLoading.value = false
+  }
+}
+
+// 扫码借书（文件选择器降级入口）
+async function onOcrBorrow(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  const b64 = await fileToBase64(file)
+  processBorrowImage(b64)
+}
+
+// 扫码还书（文件选择器降级入口）
+async function onOcrReturn(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  const b64 = await fileToBase64(file)
+  processReturnImage(b64)
 }
 
 function fileToBase64(file) {
@@ -279,12 +393,13 @@ async function loadAiRecommend() {
       category: b.category || ''
     }))
 
-    // 调用 DeepSeek 推荐
+    // 调用本地推荐算法（直接传全部图书，算法内部处理过滤和评分）
     const suggestions = await aiRecommend(history, allBooks, 6)
 
     // 匹配图书详情
     const bookMap = {}
     allBooks.forEach(b => { bookMap[b.id] = b })
+
     aiResults.value = suggestions
       .filter(s => bookMap[s.bookId])
       .map(s => ({ ...s, book: bookMap[s.bookId] }))
@@ -392,6 +507,24 @@ async function reserveBookAction(book) {
 .count { font-size: 14px; color: #999; font-weight: normal; }
 .book-card { cursor: pointer; margin-bottom: 20px; transition: transform .2s; }
 .book-card:hover { transform: translateY(-4px); }
+
+.cat-tag {
+  font-size: 11px;
+  color: #f5a623;
+  margin: 2px 0 6px;
+  font-weight: 500;
+}
+
+.ocr-btn {
+  padding: 10px 24px;
+  font-size: 14px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+.ocr-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
 .book-cover { text-align: center; padding: 10px; }
 .book-cover img { width: 120px; height: 160px; object-fit: cover; border-radius: 4px; }
 .book-info h4 { margin: 8px 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

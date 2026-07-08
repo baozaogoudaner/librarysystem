@@ -15,7 +15,7 @@ public interface BookMapper extends BaseMapper<Book> {
     @Select("SELECT * FROM t_book WHERE MATCH(title, author, description) AGAINST(#{keyword} IN BOOLEAN MODE)")
     List<Book> searchByFulltext(@Param("keyword") String keyword);
 
-    @Select("SELECT * FROM t_book WHERE title LIKE CONCAT('%', #{keyword}, '%') OR author LIKE CONCAT('%', #{keyword}, '%') OR isbn LIKE CONCAT('%', #{keyword}, '%')")
+    @Select("SELECT * FROM t_book WHERE title LIKE CONCAT('%', #{keyword}, '%') OR author LIKE CONCAT('%', #{keyword}, '%') OR REPLACE(isbn, '-', '') LIKE CONCAT('%', REPLACE(#{keyword}, '-', ''), '%')")
     List<Book> searchByKeyword(@Param("keyword") String keyword);
 
     @Select("SELECT * FROM t_book WHERE available_stock <= 3 AND status = 0 ORDER BY available_stock ASC")

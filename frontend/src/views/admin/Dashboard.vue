@@ -83,17 +83,10 @@ const loadKpi = async () => {
 
 // 初始化图表
 const initCharts = async () => {
-  // 用 script 标签加载 echarts（CDN）
-  if (typeof window.echarts === 'undefined') {
-    await new Promise((resolve, reject) => {
-      const s = document.createElement('script')
-      s.src = 'https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js'
-      s.onload = resolve
-      s.onerror = () => reject(new Error('echarts 加载失败'))
-      document.head.appendChild(s)
-    })
-  }
-  const echarts = window.echarts
+  // 从 node_modules 动态加载 echarts
+  const echartsMod = await import('echarts')
+  const echarts = echartsMod.default || echartsMod
+  if (!echarts || !echarts.init) return
   const chartInstances = []
 
   // 1. 每日预约趋势折线图

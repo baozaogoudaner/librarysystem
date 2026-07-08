@@ -160,29 +160,6 @@ public class BookController {
         return Result.success("审核完成", null);
     }
 
-    @ApiOperation("OCR智能识别")
-    @PostMapping("/ocr")
-    public Result<Map<String, Object>> ocr(@RequestParam String type, @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("type", type);
-        result.put("success", false);
-        result.put("message", "OCR功能需要通过前端DeepSeek调用");
-        return Result.success(result);
-    }
-
-    @ApiOperation("AI智能推荐（基于内容）")
-    @GetMapping("/recommend")
-    public Result<List<Book>> recommendForUser(
-            @RequestParam(required = false) Long userId,
-            @RequestParam(defaultValue = "10") Integer limit) {
-        return Result.success(bookService.getHotBooks(limit));
-    }
-
-    @ApiOperation("AI智能推荐（相似图书）")
-    @GetMapping("/recommend/similar/{bookId}")
-    public Result<List<Book>> similarBooks(
-            @PathVariable Long bookId,
-            @RequestParam(defaultValue = "10") Integer limit) {
-        return Result.success(bookService.getHotBooks(limit));
-    }
 }
+
+

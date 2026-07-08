@@ -1,7 +1,7 @@
 <template>
   <div class="seats-page">
     <!-- 筛选条件 -->
-    <el-card class="filter-card">
+    <el-card class="card">
       <el-form :inline="true">
         <el-form-item label="阅览室">
           <el-select v-model="selectedRoom" placeholder="选择阅览室" @change="loadSeats">
@@ -22,7 +22,7 @@
     </el-card>
 
     <!-- 图例 -->
-    <el-card class="legend-card">
+    <el-card class="card" style="margin-bottom:16px">
       <div class="legend">
         <span class="legend-item"><span class="dot available"></span>可预约</span>
         <span class="legend-item"><span class="dot reserved"></span>已预约</span>
@@ -33,9 +33,9 @@
     </el-card>
 
     <!-- 座位网格 -->
-    <el-card>
+    <el-card class="card">
       <template #header>
-        <span>{{ currentRoom?.name || '请选择阅览室' }} - 座位布局</span>
+        <span style="font-weight:600">{{ currentRoom?.name || '请选择阅览室' }} - 座位布局</span>
       </template>
 
       <div v-if="seats.length" class="seat-grid" :style="{ gridTemplateColumns: `repeat(${maxCol}, 56px)` }">
@@ -173,10 +173,9 @@ onMounted(loadRooms)
 
 <style scoped>
 .seats-page { max-width: 1000px; margin: 0 auto; }
-.filter-card, .legend-card { margin-bottom: 16px; }
 .legend { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
 .legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
-.dot { width: 16px; height: 16px; border-radius: 4px; display: inline-block; }
+.dot { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
 .dot.available { background: #e8f5e9; border: 2px solid #a5d6a7; }
 .dot.reserved { background: #ffebee; border: 2px solid #ef9a9a; }
 .dot.selected { background: #e3f2fd; border: 2px solid #42a5f5; }

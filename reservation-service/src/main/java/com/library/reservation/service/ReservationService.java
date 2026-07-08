@@ -52,9 +52,9 @@ public class ReservationService {
         LocalTime startTime = LocalTime.parse(request.getStartTime());
         LocalTime endTime = LocalTime.parse(request.getEndTime());
 
-        // 1. 校验预约时长不超过4小时
-        long hours = Duration.between(startTime, endTime).toHours();
-        if (hours > Constants.MAX_RESERVATION_HOURS || hours <= 0) {
+        // 1. 校验预约时长不超过4小时（按分钟计算）
+        long minutes = Duration.between(startTime, endTime).toMinutes();
+        if (minutes > Constants.MAX_RESERVATION_HOURS * 60 || minutes <= 0) {
             throw new BusinessException(ResultCode.RESERVATION_TIME_EXCEED);
         }
 

@@ -1,17 +1,26 @@
 /* ========== 全局样式 ========== */
 :root {
   --primary: #409eff;
+  --primary-light: #ecf5ff;
+  --gold: #f5a623;
+  --gold-light: #fdf6ec;
   --success: #67c23a;
   --warning: #e6a23c;
   --danger: #f56c6c;
   --info: #909399;
-  --bg-color: #f0f2f5;
+  --bg-color: #f5f7fa;
   --card-bg: #ffffff;
   --text-primary: #303133;
   --text-regular: #606266;
   --text-secondary: #909399;
-  --border-color: #dcdfe6;
-  --shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  --text-placeholder: #c0c4cc;
+  --border-color: #ebeef5;
+  --border-light: #f2f6fc;
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.10);
+  --radius: 12px;
+  --sidebar-width: 220px;
+  --header-height: 60px;
 }
 
 * {
@@ -21,38 +30,197 @@
 }
 
 body {
-  font-family: 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  background-color: var(--bg-color);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: url('/3library.png') no-repeat center center fixed;
+  background-size: cover;
   color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
 }
 
 #app {
   min-height: 100vh;
 }
 
-/* 布局 */
-.page-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
+/* ========== 卡片样式 ========== */
 
 .card {
-  background: var(--card-bg);
-  border-radius: 8px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 20px;
   margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.card-hoverable {
+  cursor: pointer;
+}
+
+.card-hoverable:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-4px);
 }
 
 .card-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   margin-bottom: 16px;
   color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* 座位网格 */
+/* Element Plus 卡片透明化 */
+.el-card {
+  background: rgba(255,255,255,0.92) !important;
+  backdrop-filter: blur(8px);
+  border: none !important;
+}
+
+/* ========== 页面容器 ========== */
+
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ========== 统计卡片 ========== */
+
+.stat-card {
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.stat-card .stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.stat-card .stat-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.stat-card .stat-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+/* ========== 骨架屏 ========== */
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-row {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.skeleton-cell {
+  flex: 1;
+  height: 20px;
+}
+
+/* ========== 空状态 ========== */
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}
+
+.empty-state .empty-icon {
+  font-size: 64px;
+  color: var(--text-placeholder);
+  margin-bottom: 16px;
+}
+
+.empty-state p {
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+/* ========== 页面过渡动画 ========== */
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.slide-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+/* ========== 数字滚动动画 ========== */
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animated-count {
+  animation: count-up 0.6s ease-out;
+}
+
+/* ========== 按钮装饰 ========== */
+
+.btn-gold {
+  --el-button-bg-color: var(--gold);
+  --el-button-border-color: var(--gold);
+  --el-button-hover-bg-color: #e09515;
+  --el-button-hover-border-color: #e09515;
+}
+
+/* ========== 座位网格 ========== */
+
 .seat-grid {
   display: grid;
   gap: 8px;
@@ -62,20 +230,21 @@ body {
 .seat-item {
   width: 48px;
   height: 48px;
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   border: 2px solid transparent;
   font-weight: 500;
+  user-select: none;
 }
 
 .seat-item:hover {
-  transform: scale(1.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transform: scale(1.12);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }
 
 .seat-available {
@@ -95,7 +264,7 @@ body {
   background-color: #e3f2fd;
   color: #1565c0;
   border-color: #42a5f5;
-  box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.3);
+  box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.3);
 }
 
 .seat-maintenance {
@@ -112,22 +281,78 @@ body {
   cursor: not-allowed;
 }
 
-/* 状态标签 */
-.status-tag {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
+/* ========== 搜索框装饰 ========== */
+
+.search-hero {
+  text-align: center;
+  padding: 48px 20px 32px;
+}
+
+.search-hero h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.search-hero p {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.search-hero .search-box {
+  display: flex;
+  gap: 12px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-hero .search-box .el-input {
+  flex: 1;
+}
+
+/* ========== 图书卡片 ========== */
+
+.book-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.book-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+.book-card .book-cover {
+  text-align: center;
+  padding: 16px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f0 100%);
+}
+
+.book-card .book-cover img {
+  width: 120px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.book-card .book-info {
+  padding: 12px 16px;
+}
+
+.book-card .book-info h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.book-card .book-info .author {
   font-size: 12px;
-  font-weight: 500;
-}
-
-/* 页面过渡动画 */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
 }

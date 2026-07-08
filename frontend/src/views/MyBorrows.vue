@@ -1,85 +1,105 @@
 <template>
   <div class="my-borrows-page">
-    <h2>我的借阅</h2>
-    <el-tabs v-model="activeTab" @tab-change="tabChange">
-      <el-tab-pane label="当前借阅" name="active" />
-      <el-tab-pane label="借阅历史" name="history" />
-      <el-tab-pane label="我的预约" name="reserves" />
-    </el-tabs>
+    <el-card shadow="hover">
+      <template #header><span style="font-weight:600">我的借阅</span></template>
+      <el-tabs v-model="activeTab" @tab-change="tabChange">
+        <el-tab-pane label="当前借阅" name="active" />
+        <el-tab-pane label="借阅历史" name="history" />
+        <el-tab-pane label="我的预约" name="reserves" />
+      </el-tabs>
 
     <!-- Active Borrows -->
-    <el-table v-if="activeTab === 'active'" :data="activeBorrows" stripe v-loading="loadingA">
-      <el-table-column prop="bookTitle" label="书名" min-width="180" />
-      <el-table-column prop="isbn" label="ISBN" width="140" />
-      <el-table-column prop="borrowTime" label="借阅日期" width="160">
-        <template #default="{ row }">{{ formatDate(row.borrowTime) }}</template>
-      </el-table-column>
-      <el-table-column prop="dueDate" label="应还日期" width="160">
-        <template #default="{ row }">
-          <span :style="{ color: isOverdue(row.dueDate) ? 'red' : 'inherit' }">
-            {{ formatDate(row.dueDate) }}
-            <el-tag v-if="isOverdue(row.dueDate)" type="danger" size="small">逾期</el-tag>
-          </span>
-        </template>
-      </el-table-column>
-      <el-table-column label="状态" width="100">
-        <template #default="{ row }">
-          <el-tag :type="borrowStatusType(row.status)">{{ borrowStatusText(row.status) }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="续借次数" width="80">
-        <template #default="{ row }">{{ row.renewCount }}/2</template>
-      </el-table-column>
-      <el-table-column label="操作" width="160">
-        <template #default="{ row }">
-          <el-button size="small" @click="handleRenew(row)" :disabled="row.renewCount >= 2 || isOverdue(row.dueDate)">续借</el-button>
-          <el-button size="small" type="primary" @click="handleReturn(row)">还书</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <template v-if="activeTab === 'active'">
+      <el-table :data="activeBorrows" stripe v-loading="loadingA" v-if="activeBorrows.length > 0 || loadingA">
+        <el-table-column prop="bookTitle" label="书名" min-width="180" />
+        <el-table-column prop="isbn" label="ISBN" width="140" />
+        <el-table-column prop="borrowTime" label="借阅日期" width="160">
+          <template #default="{ row }">{{ formatDate(row.borrowTime) }}</template>
+        </el-table-column>
+        <el-table-column prop="dueDate" label="应还日期" width="160">
+          <template #default="{ row }">
+            <span :style="{ color: isOverdue(row.dueDate) ? 'red' : 'inherit' }">
+              {{ formatDate(row.dueDate) }}
+              <el-tag v-if="isOverdue(row.dueDate)" type="danger" size="small">逾期</el-tag>
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" width="100">
+          <template #default="{ row }">
+            <el-tag :type="borrowStatusType(row.status)">{{ borrowStatusText(row.status) }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="续借次数" width="80">
+          <template #default="{ row }">{{ row.renewCount }}/2</template>
+        </el-table-column>
+        <el-table-column label="操作" width="160">
+          <template #default="{ row }">
+            <el-button size="small" @click="handleRenew(row)" :disabled="row.renewCount >= 2 || isOverdue(row.dueDate)">续借</el-button>
+            <el-button size="small" type="primary" @click="handleReturn(row)">还书</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div v-if="!loadingA && activeBorrows.length === 0" class="empty-state">
+        <div class="empty-icon">📚</div>
+        <p>当前没有借阅中的图书</p>
+      </div>
+    </template>
 
     <!-- History Borrows -->
-    <el-table v-if="activeTab === 'history'" :data="historyBorrows" stripe v-loading="loadingH">
-      <el-table-column prop="bookTitle" label="书名" min-width="180" />
-      <el-table-column prop="isbn" label="ISBN" width="140" />
-      <el-table-column prop="borrowTime" label="借阅日期" width="160">
-        <template #default="{ row }">{{ formatDate(row.borrowTime) }}</template>
-      </el-table-column>
-      <el-table-column prop="returnTime" label="归还日期" width="160">
-        <template #default="{ row }">{{ formatDate(row.returnTime) }}</template>
-      </el-table-column>
-      <el-table-column label="状态" width="100">
-        <template #default="{ row }">
-          <el-tag type="info">已归还</el-tag>
-        </template>
-      </el-table-column>
-    </el-table>
+    <template v-if="activeTab === 'history'">
+      <el-table :data="historyBorrows" stripe v-loading="loadingH" v-if="historyBorrows.length > 0 || loadingH">
+        <el-table-column prop="bookTitle" label="书名" min-width="180" />
+        <el-table-column prop="isbn" label="ISBN" width="140" />
+        <el-table-column prop="borrowTime" label="借阅日期" width="160">
+          <template #default="{ row }">{{ formatDate(row.borrowTime) }}</template>
+        </el-table-column>
+        <el-table-column prop="returnTime" label="归还日期" width="160">
+          <template #default="{ row }">{{ formatDate(row.returnTime) }}</template>
+        </el-table-column>
+        <el-table-column label="状态" width="100">
+          <template #default="{ row }">
+            <el-tag type="info">已归还</el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div v-if="!loadingH && historyBorrows.length === 0" class="empty-state">
+        <div class="empty-icon">📖</div>
+        <p>暂无借阅历史</p>
+      </div>
+    </template>
 
     <!-- Book Reserves -->
-    <el-table v-if="activeTab === 'reserves'" :data="reserves" stripe v-loading="loadingR">
-      <el-table-column prop="bookTitle" label="书名" min-width="180" />
-      <el-table-column prop="isbn" label="ISBN" width="140" />
-      <el-table-column prop="reserveTime" label="预约时间" width="160">
-        <template #default="{ row }">{{ formatDate(row.reserveTime) }}</template>
-      </el-table-column>
-      <el-table-column label="状态" width="100">
-        <template #default="{ row }">
-          <el-tag :type="reserveStatusType(row.status)">{{ reserveStatusText(row.status) }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="120">
-        <template #default="{ row }">
-          <el-button v-if="row.status === 0" size="small" type="danger" @click="handleCancelReserve(row)">取消</el-button>
-          <el-button v-if="row.status === 1" size="small" type="primary" @click="handlePickup(row)">取书</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <template v-if="activeTab === 'reserves'">
+      <el-table :data="reserves" stripe v-loading="loadingR" v-if="reserves.length > 0 || loadingR">
+        <el-table-column prop="bookTitle" label="书名" min-width="180" />
+        <el-table-column prop="isbn" label="ISBN" width="140" />
+        <el-table-column prop="reserveTime" label="预约时间" width="160">
+          <template #default="{ row }">{{ formatDate(row.reserveTime) }}</template>
+        </el-table-column>
+        <el-table-column label="状态" width="100">
+          <template #default="{ row }">
+            <el-tag :type="reserveStatusType(row.status)">{{ reserveStatusText(row.status) }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="120">
+          <template #default="{ row }">
+            <el-button v-if="row.status === 0" size="small" type="danger" @click="handleCancelReserve(row)">取消</el-button>
+            <el-button v-if="row.status === 1" size="small" type="primary" @click="handlePickup(row)">取书</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div v-if="!loadingR && reserves.length === 0" class="empty-state">
+        <div class="empty-icon">📋</div>
+        <p>暂无预约记录</p>
+      </div>
+    </template>
 
     <!-- Pagination -->
     <div style="margin-top:16px;text-align:right">
       <el-pagination v-model:current-page="pageNum" :page-size="pageSize" :total="total"
                      layout="total,prev,pager,next" @change="loadData" />
     </div>
+    </el-card>
   </div>
 </template>
 

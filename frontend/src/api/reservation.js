@@ -22,7 +22,7 @@ export function checkOut(id) {
 
 // 查询我的预约
 export function getMyReservations() {
-  return request.get('/reservation/my')
+  return request.get('/reservation/list')
 }
 
 // 查询当前有效预约
@@ -32,7 +32,7 @@ export function getCurrentReservation() {
 
 // 管理员查询所有预约
 export function listAllReservations(params) {
-  return request.get('/reservation/list', { params })
+  return request.get('/reservation/admin/list', { params })
 }
 
 // 管理员取消预约

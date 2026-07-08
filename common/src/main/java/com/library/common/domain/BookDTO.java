@@ -29,6 +29,8 @@ public class BookDTO implements Serializable {
     private String callNumber;
     private Boolean hasEbook;
     private String ebookUrl;
+    /** 借阅次数 */
+    private Integer borrowCount;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }
